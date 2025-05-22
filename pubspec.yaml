@@ -1,0 +1,43 @@
+name: damkarapps
+description: "A new Flutter project."
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  font_awesome_flutter: ^10.7.0
+  image_picker: ^1.0.5
+  url_launcher: ^6.2.5
+  youtube_player_flutter: ^8.1.1
+  http: ^1.2.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^11.0.0
+  shared_preferences: ^2.2.2
+  email_otp: ^2.0.1
+  animated_snack_bar: ^0.2.0
+  sqflite: ^2.3.2
+  path_provider: ^2.0.7
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/logo_damkar.png"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
