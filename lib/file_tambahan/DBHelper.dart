@@ -20,22 +20,26 @@ class DBHelper {
 
     return openDatabase(
       databasePath,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
-        CREATE TABLE $_tableName(
-          id INTEGER PRIMARY KEY,
-          userid INTEGER,
-          name TEXT,
-          email TEXT,
-          ketua TEXT
-        )
-      ''');
+      CREATE TABLE $_tableName (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        notlp TEXT
+      )
+    ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE $_tableName ADD COLUMN notlp TEXT');
+        }
       },
     );
   }
 
-  static Future<void> insertUKMData(Map<String, dynamic> data) async {
+  static Future<void> insertData(Map<String, dynamic> data) async {
     final db = await database;
     await db.insert(
       _tableName,
@@ -44,12 +48,22 @@ class DBHelper {
     );
   }
 
-  static Future<List<Map<String, dynamic>>> getUKMData() async {
+  static Future<Map<String, dynamic>?> getUser() async {
+  final db = await database;
+  final List<Map<String, dynamic>> result = await db.query(_tableName, limit: 1);
+  if (result.isNotEmpty) {
+    return result.first;
+  }
+  return null;
+}
+
+
+  static Future<List<Map<String, dynamic>>> getData() async {
     final db = await database;
     return db.query(_tableName);
   }
 
-  static Future<void> deleteUKMData() async {
+  static Future<void> deleteData() async {
     final db = await database;
     await db.delete(_tableName);
   }
@@ -71,7 +85,7 @@ class DBHelper {
       columns: ['userid'],
       limit: 1,
     );
-  
+
     if (result.isNotEmpty) {
       return result.first['userid'] as int?;
     }

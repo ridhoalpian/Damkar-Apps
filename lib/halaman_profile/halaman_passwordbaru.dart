@@ -1,4 +1,3 @@
-import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:damkarapps/file_tambahan/DBHelper.dart';
 import 'package:damkarapps/file_tambahan/UserData.dart';
@@ -27,7 +26,7 @@ class _HalamanPasswordBaruState extends State<HalamanPasswordBaru> {
       TextEditingController();
 
   Future<void> _loadProfileData() async {
-    List<Map<String, dynamic>> profileDataList = await DBHelper.getUKMData();
+    List<Map<String, dynamic>> profileDataList = await DBHelper.getData();
 
     if (profileDataList.isNotEmpty) {
       Map<String, dynamic> profileDataMap = profileDataList.first;
@@ -43,55 +42,38 @@ class _HalamanPasswordBaruState extends State<HalamanPasswordBaru> {
     String newPassword = newPasswordController.text;
     String confirmPassword = confirmPasswordController.text;
 
-    // Periksa apakah password baru dan konfirmasi password cocok
     if (newPassword != confirmPassword) {
-      AnimatedSnackBar.rectangle(
-        'Warning',
-        'Password dan konfirmasi password tidak cocok',
-        type: AnimatedSnackBarType.warning,
-        brightness: Brightness.light,
-        duration: Duration(seconds: 6),
-      ).show(context);
-
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Warning, Password dan konfirmasi password tidak cocok')),
+      );
       return;
     }
 
-    // Kirim permintaan ke API untuk mengubah password
     try {
       var response = await http.post(
         Uri.parse(ApiUtils.buildUrl('api/change-password')),
         body: {'email': emailUKM, 'password': newPassword},
       );
 
-      // Periksa status kode respons
       if (response.statusCode == 200) {
-        AnimatedSnackBar.rectangle(
-          'Success',
-          'Password berhasil diperbarui',
-          type: AnimatedSnackBarType.success,
-          brightness: Brightness.light,
-          duration: Duration(seconds: 4),
-        ).show(context);
-
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Success, Password berhasil diperbarui')),
+        );
         Navigator.of(context).pop();
       } else {
-        AnimatedSnackBar.rectangle(
-          'Warning',
-          'Gagal memperbarui password',
-          type: AnimatedSnackBarType.warning,
-          brightness: Brightness.light,
-          duration: Duration(seconds: 4),
-        ).show(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Warning, Gagal memperbarui password')),
+        );
       }
     } catch (e) {
       print('Error: $e');
-      AnimatedSnackBar.rectangle(
-        'Info',
-        'Terjadi kesalahan, silakan coba lagi',
-        type: AnimatedSnackBarType.info,
-        brightness: Brightness.light,
-        duration: Duration(seconds: 4),
-      ).show(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Info, Terjadi kesalahan, silakan coba lagi')),
+      );
     }
   }
 
@@ -185,7 +167,7 @@ class _HalamanPasswordBaruState extends State<HalamanPasswordBaru> {
                   _changePassword();
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF5F7C5D),
+                  backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35),
                     side: BorderSide(color: Colors.grey.withOpacity(0.5)),

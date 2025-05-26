@@ -17,11 +17,11 @@ class _HalamanProfileState extends State<HalamanProfile> {
   @override
   void initState() {
     super.initState();
-    // _loadProfileData();
+    _loadProfileData();
   }
 
   Future<void> _loadProfileData() async {
-    List<Map<String, dynamic>> profileDataList = await DBHelper.getUKMData();
+    List<Map<String, dynamic>> profileDataList = await DBHelper.getData();
 
     if (profileDataList.isNotEmpty) {
       Map<String, dynamic> profileDataMap = profileDataList.first;
@@ -29,7 +29,7 @@ class _HalamanProfileState extends State<HalamanProfile> {
 
       setState(() {
         namaUser = profileData.name;
-        noHP = profileData.email;
+        noHP = profileData.notlp;
       });
     } else {}
   }
@@ -41,6 +41,10 @@ class _HalamanProfileState extends State<HalamanProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Colors.white,
+      ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
@@ -61,11 +65,13 @@ class _HalamanProfileState extends State<HalamanProfile> {
                         width: 2,
                       ),
                     ),
-                    child: Image.asset(
-                      'assets/icons/logo_damkar.png',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.contain,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/icons/user-avatars.jpg',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ],
@@ -76,16 +82,7 @@ class _HalamanProfileState extends State<HalamanProfile> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 7),
-              Text(
-                noHP,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 40),
+              SizedBox(height: 20),
               Container(
                 height: 60,
                 width: double.infinity,
@@ -93,9 +90,10 @@ class _HalamanProfileState extends State<HalamanProfile> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HalamanEditProfile()),
+                      MaterialPageRoute(
+                          builder: (context) => HalamanEditProfile()),
                     ).then((_) {
-                      // _loadProfileData();
+                      _loadProfileData();
                     });
                   },
                   style: TextButton.styleFrom(
@@ -111,7 +109,7 @@ class _HalamanProfileState extends State<HalamanProfile> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(width: 10),
-                      Icon(Icons.edit_outlined, color: Color(0xFF5F7C5D)),
+                      Icon(Icons.edit_outlined, color: Colors.grey),
                       SizedBox(width: 15),
                       Expanded(
                         child: Text(
@@ -138,7 +136,8 @@ class _HalamanProfileState extends State<HalamanProfile> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HalamanGantiPassword()),
+                      MaterialPageRoute(
+                          builder: (context) => HalamanGantiPassword()),
                     );
                   },
                   style: TextButton.styleFrom(
@@ -154,11 +153,51 @@ class _HalamanProfileState extends State<HalamanProfile> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(width: 10),
-                      Icon(Icons.lock_outline, color: Color(0xFF5F7C5D)),
+                      Icon(Icons.lock_outline, color: Colors.grey),
                       SizedBox(width: 15),
                       Expanded(
                         child: Text(
                           "Ganti Password",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontFamily: 'Montserrat',
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward, color: Colors.grey),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Container(
+                height: 60,
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    _showLogoutConfirmationDialog(context);
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: Colors.grey.withOpacity(0.5)),
+                    ),
+                    elevation: 10,
+                    shadowColor: Colors.grey.withOpacity(0.2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(width: 10),
+                      Icon(Icons.logout, color: Colors.grey),
+                      SizedBox(width: 15),
+                      Expanded(
+                        child: Text(
+                          "Logout",
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -198,7 +237,7 @@ class _HalamanProfileState extends State<HalamanProfile> {
               child: Text("Ya"),
               onPressed: () async {
                 // Hapus data dari database SQFlite
-                await DBHelper.deleteUKMData();
+                await DBHelper.deleteData();
 
                 // Tutup dialog
                 Navigator.of(context).pop();

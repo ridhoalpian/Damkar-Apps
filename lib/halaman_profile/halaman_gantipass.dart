@@ -1,10 +1,10 @@
-import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:damkarapps/file_tambahan/DBHelper.dart';
+import 'package:damkarapps/file_tambahan/UserData.dart';
 import 'package:flutter/material.dart';
 import 'package:damkarapps/file_tambahan/apiutils.dart';
 import 'package:damkarapps/halaman_profile/halaman_passwordbaru.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HalamanGantiPassword extends StatefulWidget {
   @override
@@ -13,20 +13,33 @@ class HalamanGantiPassword extends StatefulWidget {
 
 class _HalamanGantiPasswordState extends State<HalamanGantiPassword> {
   bool _isPasswordObscured = true;
+  int userId = 0;
   final TextEditingController _oldPasswordController = TextEditingController();
 
+  Future<void> _loadProfileData() async {
+    List<Map<String, dynamic>> profileDataList = await DBHelper.getData();
+
+    if (profileDataList.isNotEmpty) {
+      Map<String, dynamic> profileDataMap = profileDataList.first;
+      UserData profileData = UserData.fromJson(profileDataMap);
+
+      setState(() {
+        userId = profileData.id;
+      });
+    } else {
+    }
+  }
+
   Future<void> checkoldPass(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null) {
-      // Panggil fungsi API untuk validasi password lama
       var response = await http.post(
         Uri.parse(ApiUtils.buildUrl('api/validate-old-password')),
         headers: {
-          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({'old_password': _oldPasswordController.text}),
+        body: jsonEncode({
+          'id': userId,
+          'old_password': _oldPasswordController.text,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -35,15 +48,16 @@ class _HalamanGantiPasswordState extends State<HalamanGantiPassword> {
           MaterialPageRoute(builder: (context) => HalamanPasswordBaru()),
         );
       } else {
-        AnimatedSnackBar.rectangle(
-              'Error',
-              'Password lama tidak valid',
-              type: AnimatedSnackBarType.error,
-              brightness: Brightness.light,
-              duration: Duration(seconds: 4),
-            ).show(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error, Password lama tidak valid')),
+        );
       }
-    }
+    
+  }
+
+  void initState() {
+    super.initState();
+    _loadProfileData();
   }
 
   @override
@@ -102,7 +116,7 @@ class _HalamanGantiPasswordState extends State<HalamanGantiPassword> {
                   checkoldPass(context);
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF5F7C5D),
+                  backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35),
                     side: BorderSide(color: Colors.grey.withOpacity(0.5)),

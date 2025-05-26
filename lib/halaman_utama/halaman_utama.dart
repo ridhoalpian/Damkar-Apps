@@ -1,3 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:damkarapps/berita_model.dart';
+import 'package:damkarapps/file_tambahan/DBHelper.dart';
+import 'package:damkarapps/file_tambahan/UserData.dart';
+import 'package:damkarapps/file_tambahan/apiutils.dart';
 import 'package:damkarapps/halaman_profile/halaman_profile.dart';
 import 'package:damkarapps/halaman_utama/halaman_chatbot.dart';
 import 'package:damkarapps/halaman_utama/halaman_lokasi.dart';
@@ -6,12 +12,97 @@ import 'package:damkarapps/kategoributton.dart';
 import 'package:damkarapps/halaman_utama/halaman_videotutorial.dart';
 import 'package:damkarapps/launchWA.dart';
 import 'package:damkarapps/launchdialer.dart';
+import 'package:damkarapps/youtube_model.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:damkarapps/halaman_utama/halaman_detailberita.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class HalamanUtama extends StatelessWidget {
-  const HalamanUtama({super.key});
+class HalamanUtama extends StatefulWidget {
+  @override
+  _HalamanUtamaState createState() => _HalamanUtamaState();
+}
+
+class _HalamanUtamaState extends State<HalamanUtama> {
+  List<Berita> beritaList = [];
+  List<YoutubeVideo> youtubeList = [];
+  String namaUser = '';
+  String idUser = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+    fetchBerita();
+    fetchYoutube();
+  }
+
+  Future<void> fetchBerita() async {
+    final response =
+        await http.get(Uri.parse(ApiUtils.buildUrl('api/beritaapi')));
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      setState(() {
+        beritaList = data.map((e) => Berita.fromJson(e)).toList();
+      });
+    }
+  }
+
+  Future<void> fetchYoutube() async {
+    final response =
+        await http.get(Uri.parse(ApiUtils.buildUrl('api/youtubeapi')));
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      setState(() {
+        youtubeList = data.map((e) => YoutubeVideo.fromJson(e)).toList();
+      });
+    }
+  }
+
+  Widget youtubeCard(String url) {
+    final cleanedUrl = url.split('?').first;
+    final videoId = YoutubePlayer.convertUrlToId(cleanedUrl);
+
+    if (videoId == null || videoId.isEmpty) {
+      print('Gagal konversi link YouTube: $url');
+      return const Text('Video tidak tersedia');
+    }
+
+    final controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
+    );
+
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        controller: controller,
+        showVideoProgressIndicator: true,
+      ),
+      builder: (context, player) {
+        return Column(
+          children: [
+            player,
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _loadProfileData() async {
+    List<Map<String, dynamic>> profileDataList = await DBHelper.getData();
+
+    if (profileDataList.isNotEmpty) {
+      Map<String, dynamic> profileDataMap = profileDataList.first;
+      UserData profileData = UserData.fromJson(profileDataMap);
+
+      setState(() {
+        namaUser = profileData.name;
+        idUser = profileData.id.toString();
+      });
+    } else {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +126,12 @@ class HalamanUtama extends StatelessWidget {
                         border: Border.all(color: Colors.black12),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Text.rich(
+                      child: Text.rich(
                         TextSpan(
-                          text: "Selamat Datang ",
+                          text: "Selamat Datang, ",
                           children: [
                             TextSpan(
-                              text: "Ridho!!",
+                              text: namaUser + "!",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -48,28 +139,28 @@ class HalamanUtama extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HalamanNotifikasi()),
-                      );
-                    },
-                    child: const Icon(Icons.notifications, color: Colors.red),
-                  ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ChatBot()),
-                      );
-                    },
-                    child: const Icon(Icons.message, color: Colors.red),
-                  ),
+                  // const SizedBox(width: 12),
+                  // InkWell(
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //           builder: (context) => const HalamanNotifikasi()),
+                  //     );
+                  //   },
+                  //   child: const Icon(Icons.notifications, color: Colors.red),
+                  // ),
+                  // const SizedBox(width: 12),
+                  // InkWell(
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //           builder: (context) => const ChatBot()),
+                  //     );
+                  //   },
+                  //   child: const Icon(Icons.message, color: Colors.red),
+                  // ),
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: () {
@@ -197,7 +288,7 @@ class HalamanUtama extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const HalamanLokasi(
-                                jenis_kebakaran: 'Hewan Buah')),
+                                jenis_kebakaran: 'Hewan Buas')),
                       );
                     },
                   ),
@@ -225,46 +316,30 @@ class HalamanUtama extends StatelessWidget {
                       ),
                 ),
               ),
-
               SizedBox(
+                height: 220,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: [
-                      tutorialItem(
-                        videoId: 'qS1IfnVLNJ8',
-                        title: 'Prosedur Aman Penggunaan APAR',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TutorialVideoPage(
-                                videoId: 'qS1IfnVLNJ8',
-                                title: 'Prosedur Aman Penggunaan APAR',
+                    children: youtubeList.map((yt) {
+                      final videoId =
+                          YoutubePlayer.convertUrlToId(yt.linkYoutube) ?? '';
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: tutorialItem(
+                          videoId: videoId,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HalamanVideoTutorial(url: yt.linkYoutube),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      tutorialItem(
-                        videoId: 'Bd-zlTQkj_M',
-                        title:
-                            'Cara evakuasi saat kebakaran - Fire Fighter Training',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TutorialVideoPage(
-                                videoId: 'Bd-zlTQkj_M',
-                                title:
-                                    'Cara evakuasi saat kebakaran - Fire Fighter Training',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                            );
+                          },
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -279,55 +354,29 @@ class HalamanUtama extends StatelessWidget {
                       ),
                 ),
               ),
+
               SizedBox(
+                height: 320,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: [
-                      beritaItem(
-                        imageUrl:
-                            'https://img.okezone.com/content/2025/04/28/338/3134360/ilustrasi_kebakaran-AkXw_large.jpg',
-                        title: 'Petugas Damkar Selamatkan Bayi dari Kebakaran',
-                        summary: 'Dalam peristiwa kebakaran di kawasan X...',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DetailBeritaPage(
-                                imageUrl:
-                                    'https://img.okezone.com/content/2025/04/28/338/3134360/ilustrasi_kebakaran-AkXw_large.jpg',
-                                title:
-                                    'Petugas Damkar Selamatkan Bayi dari Kebakaran',
-                                content:
-                                    'Dalam peristiwa kebakaran di kawasan X, petugas pemadam kebakaran berhasil menyelamatkan seorang bayi dari dalam rumah yang terbakar. Evakuasi dilakukan dengan cepat setelah mendapat laporan dari warga...',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 16),
-                      beritaItem(
-                        imageUrl:
-                            'https://img.okezone.com/content/2025/04/28/338/3134360/ilustrasi_kebakaran-AkXw_large.jpg',
-                        title: 'Petugas Damkar Selamatkan Bayi dari Kebakaran',
-                        summary: 'Dalam peristiwa kebakaran di kawasan X...',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DetailBeritaPage(
-                                imageUrl:
-                                    'https://img.okezone.com/content/2025/04/28/338/3134360/ilustrasi_kebakaran-AkXw_large.jpg',
-                                title:
-                                    'Petugas Damkar Selamatkan Bayi dari Kebakaran',
-                                content:
-                                    'Dalam peristiwa kebakaran di kawasan X, petugas pemadam kebakaran berhasil menyelamatkan seorang bayi dari dalam rumah yang terbakar. Evakuasi dilakukan dengan cepat setelah mendapat laporan dari warga...',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    children: beritaList
+                        .take(3)
+                        .map((berita) => beritaItem(
+                              imageUrl: berita.foto,
+                              title: berita.judul,
+                              summary: berita.isi,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DetailBeritaPage(berita: berita),
+                                  ),
+                                );
+                              },
+                            ))
+                        .toList(),
                   ),
                 ),
               ),
@@ -400,7 +449,6 @@ class HalamanUtama extends StatelessWidget {
 
   Widget tutorialItem({
     required String videoId,
-    required String title,
     required VoidCallback onTap,
   }) {
     final String thumbnailUrl = 'https://img.youtube.com/vi/$videoId/0.jpg';
@@ -436,16 +484,6 @@ class HalamanUtama extends StatelessWidget {
                 height: 200,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
           ],
         ),
       ),

@@ -1,8 +1,7 @@
-import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:damkarapps/file_tambahan/apiutils.dart';
 import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:projectone/database/apiutils.dart';
-// import 'package:damkarapps/halaman_awal/halaman_login.dart';
+import 'package:http/http.dart' as http;
+import 'package:damkarapps/halaman_awal/halaman_login.dart';
 
 class PassBaru extends StatefulWidget {
   final String email;
@@ -41,9 +40,9 @@ class _PassBaruState extends State<PassBaru> {
             children: <Widget>[
               SizedBox(height: 40),
               Image.asset(
-                'assets/images/passbaru.png',
-                height: 150,
-                width: 150,
+                'assets/images/newpass.png',
+                height: 250,
+                width: 250,
               ),
               SizedBox(height: 40),
               Text(
@@ -147,13 +146,9 @@ class _PassBaruState extends State<PassBaru> {
 
   Future<void> changePassword(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
-      // Menampilkan pesan kesalahan jika form tidak valid
-      AnimatedSnackBar.rectangle(
-        'Error',
-        'Periksa kembali form anda',
-        type: AnimatedSnackBarType.error,
-        brightness: Brightness.light,
-      ).show(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error, Periksa kembali form anda')),
+      );
       return;
     }
 
@@ -161,43 +156,35 @@ class _PassBaruState extends State<PassBaru> {
     String confirmPassword = confirmPasswordController.text;
 
     if (newPassword != confirmPassword) {
-      AnimatedSnackBar.rectangle(
-        'Info',
-        'Konfirmasi Password tidak sesuai',
-        type: AnimatedSnackBarType.info,
-        brightness: Brightness.light,
-      ).show(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Info, Konfirmasi Password tidak sesuai')),
+      );
       return;
     }
 
-    // final Uri uri =  Uri.parse(ApiUtils.buildUrl('api/change-password'));
-    // final response = await http.post(
-    //   uri,
-    //   body: {'email': widget.email, 'password': newPassword},
-    // );
+    final Uri uri = Uri.parse(ApiUtils.buildUrl('api/change-password'));
+    final response = await http.post(
+      uri,
+      body: {'email': widget.email, 'password': newPassword},
+    );
 
-    // if (response.statusCode == 200) {
-    //   AnimatedSnackBar.rectangle(
-    //     'Success',
-    //     'Password baru berhasil disimpan',
-    //     type: AnimatedSnackBarType.success,
-    //     brightness: Brightness.light,
-    //   ).show(context);
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(builder: (context) => LoginPage()),
-    //   );
-    // } else {
-    //   AnimatedSnackBar.rectangle(
-    //     'Error',
-    //     'Gagal menyimpan password baru',
-    //     type: AnimatedSnackBarType.error,
-    //     brightness: Brightness.light,
-    //   ).show(context);
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(builder: (context) => LoginPage()),
-    //   );
-    // }
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Success, Password baru berhasil disimpan')),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HalamanLogin()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error, Gagal menyimpan password baru')),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HalamanLogin()),
+      );
+    }
   }
 }

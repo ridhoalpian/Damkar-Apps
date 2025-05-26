@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:damkarapps/file_tambahan/DBHelper.dart';
 import 'package:damkarapps/file_tambahan/UserData.dart';
 import 'package:damkarapps/file_tambahan/apiutils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HalamanEditProfile extends StatefulWidget {
   @override
@@ -14,14 +12,13 @@ class HalamanEditProfile extends StatefulWidget {
 
 class _HalamanEditProfileState extends State<HalamanEditProfile> {
   int userId = 0;
-  String emailUKM = '';
-  String namaUKM = '';
-  String namaKetua = '';
+  String emailUser = '';
+  String namaUser = '';
+  String noHP = '';
 
-  // Controllers for TextFields
-  TextEditingController _namaUKMController = TextEditingController();
-  TextEditingController _emailUKMController = TextEditingController();
-  TextEditingController _namaKetuaController = TextEditingController();
+  TextEditingController _namaUserController = TextEditingController();
+  TextEditingController _emailUserController = TextEditingController();
+  TextEditingController _noHPController = TextEditingController();
 
   @override
   void initState() {
@@ -50,9 +47,9 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
-              controller: _namaUKMController,
+              controller: _namaUserController,
               decoration: InputDecoration(
-                labelText: 'Nama UKM',
+                labelText: 'Nama',
                 prefixIcon: Icon(Icons.home, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -61,9 +58,9 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
             ),
             SizedBox(height: 20),
             TextField(
-              controller: _emailUKMController,
+              controller: _emailUserController,
               decoration: InputDecoration(
-                labelText: 'Email UKM',
+                labelText: 'Email',
                 prefixIcon: Icon(Icons.email, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -72,9 +69,9 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
             ),
             SizedBox(height: 20),
             TextField(
-              controller: _namaKetuaController,
+              controller: _noHPController,
               decoration: InputDecoration(
-                labelText: 'Nama Ketua',
+                labelText: 'No Telp',
                 prefixIcon: Icon(Icons.person, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -90,7 +87,7 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
                   updateProfile();
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF5F7C5D),
+                  backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35),
                     side: BorderSide(color: Colors.grey.withOpacity(0.5)),
@@ -115,13 +112,8 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
     );
   }
 
-  Future<String?> _getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
   Future<void> _loadProfileData() async {
-    List<Map<String, dynamic>> profileDataList = await DBHelper.getUKMData();
+    List<Map<String, dynamic>> profileDataList = await DBHelper.getData();
 
     if (profileDataList.isNotEmpty) {
       Map<String, dynamic> profileDataMap = profileDataList.first;
@@ -129,32 +121,29 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
 
       setState(() {
         userId = profileData.id; // Assign the userId
-        namaUKM = profileData.name;
-        emailUKM = profileData.email;
-        namaKetua = profileData.ketua;
+        namaUser = profileData.name;
+        emailUser = profileData.email;
+        noHP = profileData.notlp;
 
-        _namaUKMController.text = namaUKM;
-        _emailUKMController.text = emailUKM;
-        _namaKetuaController.text = namaKetua;
+        _namaUserController.text = namaUser;
+        _emailUserController.text = emailUser;
+        _noHPController.text = noHP;
       });
-    } else {
-      // Handle case when no profile data is found
-    }
+    } else {}
   }
 
   Future<void> updateProfile() async {
     String apiUrl = ApiUtils.buildUrl('api/update-user');
-    String? token = await _getToken();
 
     Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
     };
 
     Map<String, String> body = {
-      'name': _namaUKMController.text,
-      'email': _emailUKMController.text,
-      'ketua': _namaKetuaController.text,
+      'id': userId.toString(),
+      'name': _namaUserController.text,
+      'email': _emailUserController.text,
+      'notlp': _noHPController.text,
     };
 
     try {
@@ -162,35 +151,27 @@ class _HalamanEditProfileState extends State<HalamanEditProfile> {
           headers: headers, body: jsonEncode(body));
 
       if (response.statusCode == 200) {
-        print('User data updated successfully');
-        AnimatedSnackBar.rectangle(
-          'Success',
-          'Data profile berhasil diubah',
-          type: AnimatedSnackBarType.success,
-          brightness: Brightness.light,
-          duration: Duration(seconds: 4),
-        ).show(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Success, Data profile berhasil diubah')),
+        );
+        Navigator.of(context).pop();
 
-        Navigator.of(context).pop(); // Kembali ke layar sebelumnya
-
-        // Simpan perubahan data ke dalam database sqflite
         await _saveChangesToLocalDatabase();
       } else {
-        print('Failed to update user data: ${response.statusCode}');
-        // Tambahkan penanganan kesalahan jika diperlukan
+        print('Gagal mengubah data profile');
       }
     } catch (error) {
       print('Error: $error');
-      // Tambahkan penanganan kesalahan jika diperlukan
     }
   }
 
   Future<void> _saveChangesToLocalDatabase() async {
     Map<String, dynamic> newData = {
       'id': userId, // Add the id to the newData map
-      'email': _emailUKMController.text,
-      'name': _namaUKMController.text,
-      'ketua': _namaKetuaController.text,
+      'email': _emailUserController.text,
+      'name': _namaUserController.text,
+      'notlp': _noHPController.text,
     };
 
     await DBHelper.editUserData(userId, newData);

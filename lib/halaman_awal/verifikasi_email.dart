@@ -1,4 +1,3 @@
-import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:email_otp/email_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,9 +72,9 @@ class _VerifOtpPageState extends State<VerifOtpPage> {
           children: <Widget>[
             SizedBox(height: 40),
             Image.asset(
-              'assets/images/email.png',
-              height: 150,
-              width: 150,
+              'assets/images/otpverif.png',
+              height: 250,
+              width: 250,
             ),
             SizedBox(height: 40),
             Text(
@@ -104,28 +103,22 @@ class _VerifOtpPageState extends State<VerifOtpPage> {
                       otpLength: 4,
                       otpType: OTPType.digitsOnly);
                   if (await widget.myauth.sendOTP() == true) {
-                    AnimatedSnackBar.rectangle(
-                      'Success',
-                      'OTP berhasil dikirim',
-                      type: AnimatedSnackBarType.success,
-                      brightness: Brightness.light,
-                    ).show(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Success, OTP berhasil dikirim')),
+                    );
                     _startResendTimer();
                   } else {
-                    AnimatedSnackBar.rectangle(
-                      'Error',
-                      'OTP gagal dikirim',
-                      type: AnimatedSnackBarType.error,
-                      brightness: Brightness.light,
-                    ).show(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Error, OTP gagal dikirim')),
+                    );
                   }
                 } else {
-                  AnimatedSnackBar.rectangle(
-                    'Warning',
-                    'Anda dapat mengirim ulang kode OTP setelah waktu tunggu habis',
-                    type: AnimatedSnackBarType.warning,
-                    brightness: Brightness.light,
-                  ).show(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Warning, Anda dapat mengirim ulang kode OTP setelah waktu tunggu habis')),
+                  );
                 }
               },
               child: Text(
@@ -155,25 +148,20 @@ class _VerifOtpPageState extends State<VerifOtpPage> {
                     otp4Controller.text;
 
                 if (await widget.myauth.verifyOTP(otp: otp)) {
-                  AnimatedSnackBar.rectangle(
-                    'Success',
-                    'OTP berhasil diverifikasi',
-                    type: AnimatedSnackBarType.success,
-                    brightness: Brightness.light,
-                  ).show(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Success, OTP berhasil diverifikasi')),
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            PassBaru(email: widget.email)),
+                        builder: (context) => PassBaru(email: widget.email)),
                   );
                 } else {
-                  AnimatedSnackBar.rectangle(
-                    'Error',
-                    'Kode OTP tidak sesuai',
-                    type: AnimatedSnackBarType.error,
-                    brightness: Brightness.light,
-                  ).show(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error, Kode OTP tidak sesuai')),
+                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -190,7 +178,6 @@ class _VerifOtpPageState extends State<VerifOtpPage> {
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,
-                  fontFamily: 'Montserrat',
                   fontWeight: FontWeight.bold,
                 ),
               ),

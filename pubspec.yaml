@@ -20,9 +20,9 @@ dependencies:
   geolocator: ^11.0.0
   shared_preferences: ^2.2.2
   email_otp: ^2.0.1
-  animated_snack_bar: ^0.2.0
   sqflite: ^2.3.2
   path_provider: ^2.0.7
+  permission_handler: ^11.3.0
   
 dev_dependencies:
   flutter_test:

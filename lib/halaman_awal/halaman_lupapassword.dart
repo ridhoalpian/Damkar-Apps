@@ -1,7 +1,6 @@
 import 'package:email_otp/email_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:damkarapps/halaman_awal/verifikasi_email.dart';
-import 'package:animated_snack_bar/animated_snack_bar.dart';
 
 class HalamanLupaPassword extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -31,9 +30,9 @@ class HalamanLupaPassword extends StatelessWidget {
             children: <Widget>[
               SizedBox(height: 40),
               Image.asset(
-                'assets/images/',
-                height: 150,
-                width: 150,
+                'assets/images/lupapass.png',
+                height: 250,
+                width: 250,
               ),
               SizedBox(height: 40),
               Text(
@@ -82,12 +81,10 @@ class HalamanLupaPassword extends StatelessWidget {
                     otpType: OTPType.digitsOnly,
                   );
                   if (await myauth.sendOTP() == true) {
-                    AnimatedSnackBar.rectangle(
-                      'Success',
-                      'OTP berhasil dikirim',
-                      type: AnimatedSnackBarType.success,
-                      brightness: Brightness.light,
-                    ).show(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Success, OTP berhasil dikirim')),
+                    );
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -98,12 +95,9 @@ class HalamanLupaPassword extends StatelessWidget {
                       ),
                     );
                   } else {
-                    AnimatedSnackBar.rectangle(
-                      'Error',
-                      'OTP gagal dikirim',
-                      type: AnimatedSnackBarType.error,
-                      brightness: Brightness.light,
-                    ).show(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Error, OTP gagal dikirim')),
+                    );
                   }
                 }
               },
@@ -121,7 +115,6 @@ class HalamanLupaPassword extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.white,
-                  fontFamily: 'Montserrat',
                   fontWeight: FontWeight.bold,
                 ),
               ),

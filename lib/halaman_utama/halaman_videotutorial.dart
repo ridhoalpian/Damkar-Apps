@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class TutorialVideoPage extends StatefulWidget {
-  final String videoId;
-  final String title;
+class HalamanVideoTutorial extends StatefulWidget {
+  final String url;
 
-  const TutorialVideoPage({super.key, required this.videoId, required this.title});
+  const HalamanVideoTutorial({super.key, required this.url});
 
   @override
-  State<TutorialVideoPage> createState() => _TutorialVideoPageState();
+  State<HalamanVideoTutorial> createState() => _HalamanVideoTutorialState();
 }
 
-class _TutorialVideoPageState extends State<TutorialVideoPage> {
+class _HalamanVideoTutorialState extends State<HalamanVideoTutorial> {
   late YoutubePlayerController _controller;
+  late String videoId;
 
   @override
   void initState() {
     super.initState();
+    videoId = YoutubePlayer.convertUrlToId(widget.url) ?? '';
+
     _controller = YoutubePlayerController(
-      initialVideoId: widget.videoId,
+      initialVideoId: videoId,
       flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
@@ -36,7 +38,7 @@ class _TutorialVideoPageState extends State<TutorialVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Video Tutorial'),
         backgroundColor: Colors.red,
       ),
       body: YoutubePlayerBuilder(
@@ -46,9 +48,13 @@ class _TutorialVideoPageState extends State<TutorialVideoPage> {
             children: [
               player,
               const SizedBox(height: 20),
-              const Text(
-                'Tonton video ini untuk mengetahui cara penanganan darurat!',
-                textAlign: TextAlign.center,
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Tonton video ini untuk mengetahui cara penanganan darurat!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           );
