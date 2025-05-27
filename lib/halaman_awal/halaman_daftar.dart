@@ -18,6 +18,9 @@ class _HalamanDaftarState extends State<HalamanDaftar> {
   final TextEditingController konfirmasiPasswordController =
       TextEditingController();
 
+      bool _isObscured = true;
+      bool _isObscured1 = true;
+
   Future<void> kirimData() async {
     // Validasi password
     if (passwordController.text != konfirmasiPasswordController.text) {
@@ -122,14 +125,60 @@ class _HalamanDaftarState extends State<HalamanDaftar> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: passwordController,
-                obscureText: true,
-                decoration: inputStyle("Password"),
+                obscureText: _isObscured,
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: _isObscured
+                        ? Icon(Icons.visibility_off)
+                        : Icon(Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  ),
+                  hintText: "Password",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password harus diisi';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: konfirmasiPasswordController,
-                obscureText: true,
-                decoration: inputStyle("Konfirmasi Password"),
+                obscureText: _isObscured1,
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: _isObscured1
+                        ? Icon(Icons.visibility_off)
+                        : Icon(Icons.visibility),
+                    onPressed: () {
+                      setState(() {
+                        _isObscured1 = !_isObscured1;
+                      });
+                    },
+                  ),
+                  hintText: "Konfirmasi Password",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password harus diisi';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 24),
               ElevatedButton(

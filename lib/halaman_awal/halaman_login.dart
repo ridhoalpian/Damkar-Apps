@@ -22,7 +22,8 @@ class _HalamanLoginState extends State<HalamanLogin> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isObscured = true;
+  bool 
+  _isObscured = true;
 
   @override
   void initState() {
