@@ -29,7 +29,6 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
   String namaUser = '';
   String noHP = '';
 
-  // Controllers for TextFields
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _waktuController = TextEditingController();
@@ -54,9 +53,20 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
+
     if (picked != null) {
+      final file = File(picked.path);
+      final fileSize = await file.length();
+
+      if (fileSize > 2 * 1024 * 1024) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ukuran file terlalu besar (maks 2MB)")),
+        );
+        return;
+      }
+
       setState(() {
-        _fotoList.add(File(picked.path));
+        _fotoList.add(file);
       });
     }
   }
@@ -67,12 +77,24 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80, // ⬅ bisa diturunkan agar ukuran file kecil
+        imageQuality: 80,
         preferredCameraDevice: CameraDevice.rear,
       );
+
       if (picked != null) {
+        final file = File(picked.path);
+        final fileSize = await file.length();
+
+        if (fileSize > 2 * 1024 * 1024) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Ukuran file terlalu besar (maks 2MB)")),
+          );
+          return;
+        }
+
         setState(() {
-          _fotoList.add(File(picked.path));
+          _fotoList.add(file);
         });
       }
     } else {
@@ -104,7 +126,7 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
     request.fields['lat'] = widget.latitude.toString();
     request.fields['lng'] = widget.longitude.toString();
     request.fields['lokasi'] =
-        _lokasiDetailController.text; // ⬅ Lokasi ditambahkan
+        _lokasiDetailController.text; 
     request.fields['catatan'] = _deskripsiController.text;
 
     for (var i = 0; i < _fotoList.length; i++) {
@@ -177,9 +199,10 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
             const Text("Masukkan Laporan Anda!!",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 16),
-            _buildInputField("Nama Pelapor", _namaController),
+            _buildInputField("Nama Pelapor", _namaController, readOnly: true),
             const SizedBox(height: 12),
-            _buildInputField("No. Telepon / No. HP", _teleponController),
+            _buildInputField("No. Telepon / No. HP", _teleponController,
+                readOnly: true),
             const SizedBox(height: 12),
             _buildInputField("Waktu Kejadian", _waktuController,
                 readOnly: true),
@@ -218,22 +241,24 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
                           ),
                         ),
                         Positioned(
-                          right: -6,
-                          top: -6,
-                          child: GestureDetector(
+                          right: 4,
+                          top: 4,
+                          child: InkWell(
                             onTap: () {
                               setState(() {
                                 _fotoList.removeAt(index);
                               });
                             },
+                            borderRadius: BorderRadius.circular(20),
                             child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.6),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.close,
-                                  size: 16, color: Colors.white),
+                                  size: 14, color: Colors.white),
                             ),
                           ),
                         ),
@@ -298,7 +323,7 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
       UserData profileData = UserData.fromJson(profileDataMap);
 
       setState(() {
-        userId = profileData.id; // Assign the userId
+        userId = profileData.id; 
         namaUser = profileData.name;
         noHP = profileData.notlp;
 
@@ -306,7 +331,6 @@ class _HalamanKejadianState extends State<HalamanKejadian> {
         _teleponController.text = noHP;
       });
     } else {
-      // Handle case when no profile data is found
     }
   }
 }

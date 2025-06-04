@@ -53,7 +53,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
       final data = jsonDecode(response.body);
 
       if (data['status'] == 'success') {
-        await DBHelper.deleteData(); // Kosongkan dulu database lokal (opsional)
+        await DBHelper.deleteData();
 
         final userJson = data['data'];
         final userData = UserData.fromJson(userJson);
@@ -73,7 +73,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal: ${data['message']}')),
+          SnackBar(content: Text('Login Gagal, Coba lagi')),
         );
       }
     } else if (response.statusCode == 401) {
@@ -82,7 +82,7 @@ class _HalamanLoginState extends State<HalamanLogin> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Terjadi kesalahan: ${response.statusCode}')),
+        SnackBar(content: Text('Terjadi kesalahan, Silahkan coba lagi')),
       );
     }
   }

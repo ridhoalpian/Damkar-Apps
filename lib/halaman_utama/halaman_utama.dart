@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:damkarapps/berita_model.dart';
 import 'package:damkarapps/file_tambahan/DBHelper.dart';
@@ -7,7 +8,6 @@ import 'package:damkarapps/file_tambahan/apiutils.dart';
 import 'package:damkarapps/halaman_profile/halaman_profile.dart';
 import 'package:damkarapps/halaman_utama/halaman_chatbot.dart';
 import 'package:damkarapps/halaman_utama/halaman_lokasi.dart';
-import 'package:damkarapps/halaman_utama/halaman_notif.dart';
 import 'package:damkarapps/kategoributton.dart';
 import 'package:damkarapps/halaman_utama/halaman_videotutorial.dart';
 import 'package:damkarapps/launchWA.dart';
@@ -28,6 +28,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
   List<YoutubeVideo> youtubeList = [];
   String namaUser = '';
   String idUser = '';
+  Timer? _timer;
 
   @override
   void initState() {
@@ -35,6 +36,17 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     _loadProfileData();
     fetchBerita();
     fetchYoutube();
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchBerita();
+      fetchYoutube();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchBerita() async {
@@ -114,7 +126,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Header Selamat Datang
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -139,28 +150,17 @@ class _HalamanUtamaState extends State<HalamanUtama> {
                       ),
                     ),
                   ),
-                  // const SizedBox(width: 12),
-                  // InkWell(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //           builder: (context) => const HalamanNotifikasi()),
-                  //     );
-                  //   },
-                  //   child: const Icon(Icons.notifications, color: Colors.red),
-                  // ),
-                  // const SizedBox(width: 12),
-                  // InkWell(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //           builder: (context) => const ChatBot()),
-                  //     );
-                  //   },
-                  //   child: const Icon(Icons.message, color: Colors.red),
-                  // ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChatBot()),
+                      );
+                    },
+                    child: const Icon(Icons.message, color: Colors.red),
+                  ),
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: () {
@@ -185,7 +185,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Lingkaran besar (outer ripple)
                   Container(
                     width: 200,
                     height: 200,
@@ -194,7 +193,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
                       color: Colors.red.withOpacity(0.1),
                     ),
                   ),
-                  // Lingkaran tengah
                   Container(
                     width: 150,
                     height: 150,
@@ -203,7 +201,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
                       color: Colors.red.withOpacity(0.2),
                     ),
                   ),
-                  // Lingkaran kecil dengan icon
                   GestureDetector(
                     onTap: launchDialer,
                     child: Container(
@@ -293,7 +290,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
                     },
                   ),
                   KategoriButton(
-                    icon: Icons.volcano, // atau FontAwesomeIcons.volcano
+                    icon: Icons.volcano, 
                     label: "Bencana Alam",
                     onTap: () {
                       Navigator.push(
@@ -456,7 +453,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 280, // Tambahkan ini
+        width: 280,
         margin: const EdgeInsets.only(top: 16, right: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -507,7 +504,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
         ),
         title: Text(label),
         onTap: () {
-          // Aksi ketika kategori dipilih
         },
       ),
     );

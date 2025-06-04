@@ -1,4 +1,5 @@
 import 'package:damkarapps/halaman_awal/halaman_emergency.dart';
+import 'package:damkarapps/halaman_awal/halaman_login.dart';
 import 'package:damkarapps/halaman_awal/halaman_splash.dart';
 import 'package:damkarapps/halaman_utama/halaman_utama.dart';
 import 'package:flutter/material.dart'; // Tambahkan font_awesome_flutter di pubspec.yaml jika belum
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => HalamanSplash(),
         '/emergency': (context) => HalamanEmergency(),
         '/home': (context) => HalamanUtama(),
+        '/login': (context) => HalamanLogin()
       },
       debugShowCheckedModeBanner: false,
     );

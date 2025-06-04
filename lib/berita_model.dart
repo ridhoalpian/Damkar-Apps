@@ -1,3 +1,5 @@
+import 'package:damkarapps/file_tambahan/apiutils.dart';
+
 class Berita {
   final String judul;
   final String penulis;
@@ -11,7 +13,7 @@ class Berita {
       judul: json['judul'],
       penulis: json['penulis'],
       isi: json['isi'],
-      foto: json['foto'],
+      foto: ApiUtils.buildUrl('/storage/'+json['foto']),
     );
   }
 }
